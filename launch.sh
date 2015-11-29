@@ -74,4 +74,3 @@ aws cloudwatch put-metric-alarm --alarm-name ITMO-544-Reduce-Alarm --metric-name
 
 # Create read replica
 aws rds-create-db-instance-read-replica ITM0-544-Database-Replica --source-db-instance-identifier-value ITMO-544-Database --output=text 
-
