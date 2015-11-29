@@ -9,7 +9,7 @@ DbSubnetID=$(aws rds create-db-subnet-group --db-subnet-group-name ITMO-544-Data
 # creating the database. Initial check done in previous, cleanup section.
 
 
-aws rds create-db-instance --db-name ITMO544DatabaseProject --publicly-accessible --db-instance-identifier ITMO-544-Database --allocated-storage 5 --db-instance-class db.t1.micro --engine MySQL --master-username controller --master-user-password ilovebunnies --db-subnet-group-name ITMO-544-Database-Subnet  
+aws rds create-db-instance --db-name CloudProject --publicly-accessible --db-instance-identifier ITMO-544-Database --allocated-storage 5 --db-instance-class db.t1.micro --engine MySQL --master-username controller --master-user-password ilovebunnies --db-subnet-group-name ITMO-544-Database-Subnet  
 aws rds wait db-instance-available --db-instance-identifier ITMO-544-Database
 
 # creating elb 
@@ -24,7 +24,6 @@ for i in {0..60}
 # configuring health check
 aws elb configure-health-check --load-balancer-name ITMO-544-Load-Balancer --health-check Target=HTTP:80/index.html,Interval=30,UnhealthyThreshold=2,HealthyThreshold=2,Timeout=3
 echo -e "\n Configured ELB health check. Proceeding to launch EC2 instances"
-  
 
 # registering instances with created elb
 declare -a instance_list
@@ -41,6 +40,9 @@ echo -e "\n Sleeping for one minute to complete the process."
  echo "\n"
 done
 
+#Load balancer stickiness policy
+aws elb create-lb-cookie-stickiness-policy --load-balancer-name ITMO-544-Load-Balancer --policy-name FinalCPN
+aws elb set-load-balancer-policies-of-listener --load-balancer-name ITMO-544-Load-Balancer --load-balancer-port 80 --policy-names FinalCPN
 
 #SNS starts here:
 SnsImageARN=(`aws sns create-topic --name SnsImageTopicName`)
